@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
+import { AuthGateway } from './auth/auth.gateway';
 
 @Module({
   imports: [
@@ -10,6 +11,6 @@ import { CacheModule } from '@nestjs/cache-manager';
     CacheModule.register()
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AuthGateway],
 })
 export class AppModule {}
