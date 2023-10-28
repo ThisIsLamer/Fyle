@@ -4,13 +4,19 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { AuthGateway } from './auth/auth.gateway';
+import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from './auth/auth.module';
+import { GuestModule } from './guest/guest.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    CacheModule.register()
+    CacheModule.register(),
+    MongooseModule.forRoot(process.env.MONGO_CONNECT),
+    AuthModule,
+    GuestModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AuthGateway],
+  providers: [AppService],
 })
 export class AppModule {}
