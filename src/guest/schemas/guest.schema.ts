@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { v5 as uuidv5 } from 'uuid';
+import crypto from 'crypto';
 
 export type GuestDocument = HydratedDocument<Guest>;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Guest {
-  @Prop({ default: () => uuidv5(String(Math.random() *2**50), '1b671a64-40d5-491e-99b0-da01ff1f3341') })
+  @Prop({ default: () => crypto.randomBytes(96).toString('hex') })
   token: string;
 }
 

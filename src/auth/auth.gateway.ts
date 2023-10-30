@@ -1,46 +1,47 @@
-// auth.gateway.ts
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject } from '@nestjs/common';
-import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import { Cache } from 'cache-manager';
-import { Server, Socket } from 'socket.io';
-import { GuestService } from 'src/guest/guest.service';
+import { Inject } from "@nestjs/common";
+import { SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
+import Redis from "ioredis";
+import { Server } from 'socket.io';
+import { IUserPayload } from "src/user/dto/user.dto";
+import { UserService } from "src/user/user.service";
+import { Processed, ProcessedPayload } from "src/utils/default";
 
 @WebSocketGateway({ cors: true })
 export class AuthGateway {
   constructor(
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @Inject('REDIS') private readonly redis: Redis,
 
-    private guestService: GuestService,
+    private userService: UserService,
   ) {}
 
   @WebSocketServer() server: Server;
 
   @SubscribeMessage('auth')
-  async handleAuth(client: Socket, payload: string) {
-    const data = JSON.parse(payload);
-    const targetClient = this.server.sockets.sockets.get(client.id);
+  async handleAuth(@ProcessedPayload() processed: Processed<IUserPayload>) {
+    const { targetClient, payload } = processed;
+    if (!payload) 
+      return targetClient.emit('register', { success: false, message: 'The request was not sent correctly' });
+    if (await this.redis.get(`auth-${targetClient.id}`))
+      return targetClient.emit('register', { success: true, message: 'You are already logged in' });
 
-    const value = await this.cacheManager.get<string>(client.id);
-    if (value)
-      return targetClient.emit('auth', { success: true, message: 'You are already logged in' });
+    const loadedUser = await this.userService.login(payload);
+    if (loadedUser.success)
+      this.redis.set(`auth-${targetClient.id}`, `{ success: ${loadedUser.success} }`);
 
-    const loadedGuest = await this.guestService.findGuest(data.token);
-    if (loadedGuest.success) 
-      this.cacheManager.set(client.id, loadedGuest, 0);
-
-    targetClient.emit('auth', loadedGuest);
+    targetClient.emit('auth', loadedUser);
   }
 
   @SubscribeMessage('register')
-  async handleRegister(client: Socket) {
-    const targetClient = this.server.sockets.sockets.get(client.id);
-    if (await this.cacheManager.get(client.id))
-      return targetClient.emit('register', { success: false, message: 'You are already registered' });
+  async handleRegister(
+    @ProcessedPayload() processed: Processed<IUserPayload>
+  ) {
+    const { targetClient, payload } = processed;
+    if (!payload) return targetClient.emit('register', ' The request was not sent correctly')
+    
+    const loadedUser = await this.userService.create(payload);
+    if (loadedUser.success)
+      this.redis.set(`auth-${targetClient.id}`, loadedUser.session.token);
 
-    const loadedGuest = await this.guestService.create();
-
-    this.cacheManager.set(client.id, loadedGuest, 0);
-    targetClient.emit('register', { success: true, guest: loadedGuest });
+    targetClient.emit('register', loadedUser);
   }
 }
