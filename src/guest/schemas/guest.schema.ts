@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
-import crypto from 'crypto';
+import { HydratedDocument, Types } from 'mongoose';
+import * as crypto from 'crypto';
 
 export type GuestDocument = HydratedDocument<Guest>;
 
@@ -8,6 +8,9 @@ export type GuestDocument = HydratedDocument<Guest>;
 export class Guest {
   @Prop({ default: () => crypto.randomBytes(96).toString('hex') })
   token: string;
+
+  @Prop([{ type: Types.ObjectId, ref: 'File' }])
+  files: (File | Types.ObjectId)[];
 }
 
 export const GuestSchema = SchemaFactory.createForClass(Guest);

@@ -20,10 +20,6 @@ export class UserService {
     return await this.userModel.findOne({ login });
   }
 
-  private async createSession(userId: Types.ObjectId) {
-    return await this.sessionService.createSession(userId);
-  }
-
   async create(userPayload: IUserPayload) {
     if (await this.findUserForLogin(userPayload.login))
       return { success: false, message: 'A user with this login already exists' };
@@ -38,14 +34,14 @@ export class UserService {
 
     await createdUser.save();
 
-    return { success: true, session: await this.createSession(createdUser.id) };
+    return { success: true, session: await this.sessionService.createSession(createdUser.id) };
   }
 
   async login(userPayload: IUserPayload) {
     if (userPayload?.token) {
-      const loadedSession = this.sessionService.getSession(userPayload.token);
+      const loadedSession = await this.sessionService.getSession(userPayload.token);
       if (loadedSession)
-        return { success: true };
+        return { success: true, session: loadedSession };
       return { success: false, message: 'Invalid token' };
     }
 
@@ -57,7 +53,7 @@ export class UserService {
     );
 
     if (statusPassword) 
-      return { success: statusPassword, session: await this.createSession(loadedUser.id) };
+      return { success: statusPassword, session: await this.sessionService.createSession(loadedUser.id) };
 
     return { success: statusPassword, message: 'Incorrect login or password' };
   }

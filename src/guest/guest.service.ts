@@ -12,14 +12,9 @@ export class GuestService {
     return createdGuest.save();
   }
 
-  async findGuest(token: string): Promise<{ success: boolean, message?: string }> {
-    const loadedGuest = await this.guestModel.findOne({
+  async findGuest(token: string) {
+    return await this.guestModel.findOne({
       token
     }).exec();
-
-    if (!loadedGuest) 
-      return { success: false, message: 'Invalid token' }
-    
-    return { success: true };
   }
 }

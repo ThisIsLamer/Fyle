@@ -16,6 +16,6 @@ export class SessionService {
   }
 
   public async getSession(token: string) {
-    return this.sessionModel.findOne({ token });
+    return await this.sessionModel.findOne({ token }).populate('user');
   }
 }

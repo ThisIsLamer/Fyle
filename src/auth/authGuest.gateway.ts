@@ -20,27 +20,29 @@ export class AuthGuestGateway {
   async handleGuestAuth(@ProcessedPayload() processed: Processed<{ token: string }>) {
     const { targetClient, payload } = processed;
 
-    const value = await this.redis.get(`guest-${targetClient.id}`);
+    const value = await this.redis.get(targetClient.id);
     if (value)
       return targetClient.emit('auth', { success: true, message: 'You are already logged in' });
 
     const loadedGuest = await this.guestService.findGuest(payload.token);
-    if (loadedGuest.success) 
-      this.redis.set(`guest-${targetClient.id}`, String(loadedGuest));
+    if (!loadedGuest) 
+      return { success: false, message: 'Invalid token' }
 
-    targetClient.emit('guest-auth', loadedGuest);
+    this.redis.set(targetClient.id, `{ "authType": "guest", "token": ${loadedGuest.token} }`);
+
+    targetClient.emit('guest-auth', loadedGuest );
   }
 
   @SubscribeMessage('guest-register')
   async handleGuestRegister(@ProcessedPayload() processed: Processed<null>) {
     const { targetClient } = processed;
 
-    if (await this.redis.get(`guest-${targetClient.id}`))
+    if (await this.redis.get(targetClient.id))
       return targetClient.emit('guest-register', { success: false, message: 'You are already registered' });
 
     const loadedGuest = await this.guestService.create();
 
-    this.redis.set(`guest-${targetClient.id}`, String(loadedGuest));
+    this.redis.set(targetClient.id, `{ "authType": "guest", "token": ${loadedGuest.token} }`);
     targetClient.emit('guest-register', { success: true, guest: loadedGuest });
   }
 }

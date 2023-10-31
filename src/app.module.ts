@@ -10,6 +10,7 @@ import { RedisModule } from './redis/redis.module';
 import { UserModule } from './user/user.module';
 import { validate } from './env.validation';
 import { SessionModule } from './session/session.module';
+import { FileModule } from './file/file.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { SessionModule } from './session/session.module';
     GuestModule,
     UserModule,
     SessionModule,
+    FileModule,
   ],
   controllers: [AppController],
   providers: [AppService],

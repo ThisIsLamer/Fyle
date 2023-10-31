@@ -17,6 +17,9 @@ export class User {
 
   @Prop([{ type: Types.ObjectId, ref: 'Session' }])
   sessions: (Session | Types.ObjectId)[];
+
+  @Prop([{ type: Types.ObjectId, ref: 'File' }])
+  files: (File | Types.ObjectId)[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

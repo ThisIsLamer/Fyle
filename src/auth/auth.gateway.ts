@@ -21,12 +21,12 @@ export class AuthGateway {
     const { targetClient, payload } = processed;
     if (!payload) 
       return targetClient.emit('register', { success: false, message: 'The request was not sent correctly' });
-    if (await this.redis.get(`auth-${targetClient.id}`))
+    if (await this.redis.get(targetClient.id))
       return targetClient.emit('register', { success: true, message: 'You are already logged in' });
 
     const loadedUser = await this.userService.login(payload);
     if (loadedUser.success)
-      this.redis.set(`auth-${targetClient.id}`, `{ success: ${loadedUser.success} }`);
+      this.redis.set(targetClient.id, `{ "authType": "user", "token": "${loadedUser.session.token}" }`);
 
     targetClient.emit('auth', loadedUser);
   }
@@ -37,10 +37,10 @@ export class AuthGateway {
   ) {
     const { targetClient, payload } = processed;
     if (!payload) return targetClient.emit('register', ' The request was not sent correctly')
-    
+
     const loadedUser = await this.userService.create(payload);
     if (loadedUser.success)
-      this.redis.set(`auth-${targetClient.id}`, loadedUser.session.token);
+      this.redis.set(targetClient.id, `{ "authType": "user", "token": "${loadedUser.session.token}" }`);
 
     targetClient.emit('register', loadedUser);
   }
