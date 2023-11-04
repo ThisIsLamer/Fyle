@@ -20,15 +20,15 @@ export class AuthGateway {
   async handleAuth(@ProcessedPayload() processed: Processed<IUserPayload>) {
     const { targetClient, payload } = processed;
     if (!payload) 
-      return targetClient.emit('register', { success: false, message: 'The request was not sent correctly' });
+      return targetClient.emit('register', { success: false, message: 'The request was not sent correctly', id: payload.id ?? -1 });
     if (await this.redis.get(targetClient.id))
-      return targetClient.emit('register', { success: true, message: 'You are already logged in' });
+      return targetClient.emit('register', { success: true, message: 'You are already logged in', id:payload.id ?? -1 });
 
     const loadedUser = await this.userService.login(payload);
     if (loadedUser.success)
       this.redis.set(targetClient.id, `{ "authType": "user", "token": "${loadedUser.session.token}" }`);
 
-    targetClient.emit('auth', loadedUser);
+    targetClient.emit('auth', { ...loadedUser, id: payload.id ?? -1 });
   }
 
   @SubscribeMessage('register')
@@ -36,12 +36,12 @@ export class AuthGateway {
     @ProcessedPayload() processed: Processed<IUserPayload>
   ) {
     const { targetClient, payload } = processed;
-    if (!payload) return targetClient.emit('register', ' The request was not sent correctly')
+    if (!payload) return targetClient.emit('register', { success: true, message: 'The request was not sent correctly', id:payload.id ?? -1 })
 
     const loadedUser = await this.userService.create(payload);
     if (loadedUser.success)
       this.redis.set(targetClient.id, `{ "authType": "user", "token": "${loadedUser.session.token}" }`);
 
-    targetClient.emit('register', loadedUser);
+    targetClient.emit('register', { ...loadedUser, id: payload.id ?? -1 });
   }
 }

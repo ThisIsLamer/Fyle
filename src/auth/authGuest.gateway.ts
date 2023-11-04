@@ -17,16 +17,16 @@ export class AuthGuestGateway {
   @WebSocketServer() server: Server;
 
   @SubscribeMessage('guest-auth')
-  async handleGuestAuth(@ProcessedPayload() processed: Processed<{ token: string }>) {
+  async handleGuestAuth(@ProcessedPayload() processed: Processed<{ token: string, id?: number }>) {
     const { targetClient, payload } = processed;
 
     const value = await this.redis.get(targetClient.id);
     if (value)
-      return targetClient.emit('auth', { success: true, message: 'You are already logged in' });
+      return targetClient.emit('auth', { success: true, message: 'You are already logged in', id:payload.id ?? -1 });
 
     const loadedGuest = await this.guestService.findGuest(payload.token);
     if (!loadedGuest) 
-      return { success: false, message: 'Invalid token' }
+      return { success: false, message: 'Invalid token', id:payload.id ?? -1 }
 
     this.redis.set(targetClient.id, `{ "authType": "guest", "token": ${loadedGuest.token} }`);
 
@@ -34,15 +34,15 @@ export class AuthGuestGateway {
   }
 
   @SubscribeMessage('guest-register')
-  async handleGuestRegister(@ProcessedPayload() processed: Processed<null>) {
-    const { targetClient } = processed;
+  async handleGuestRegister(@ProcessedPayload() processed: Processed<{ id?: number }>) {
+    const { targetClient, payload } = processed;
 
     if (await this.redis.get(targetClient.id))
-      return targetClient.emit('guest-register', { success: false, message: 'You are already registered' });
+      return targetClient.emit('guest-register', { success: false, message: 'You are already registered', id:payload.id ?? -1 });
 
     const loadedGuest = await this.guestService.create();
 
     this.redis.set(targetClient.id, `{ "authType": "guest", "token": ${loadedGuest.token} }`);
-    targetClient.emit('guest-register', { success: true, guest: loadedGuest });
+    targetClient.emit('guest-register', { success: true, guest: loadedGuest, id:payload.id ?? -1 });
   }
 }
