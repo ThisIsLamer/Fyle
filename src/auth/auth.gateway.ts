@@ -20,9 +20,9 @@ export class AuthGateway {
   async handleAuth(@ProcessedPayload() processed: Processed<IUserPayload>) {
     const { targetClient, payload } = processed;
     if (!payload) 
-      return targetClient.emit('register', { success: false, message: 'The request was not sent correctly', id: payload.id ?? -1 });
+      return targetClient.emit('auth', { success: false, message: 'The request was not sent correctly', id: payload.id ?? -1 });
     if (await this.redis.get(targetClient.id))
-      return targetClient.emit('register', { success: true, message: 'You are already logged in', id:payload.id ?? -1 });
+      return targetClient.emit('auth', { success: true, message: 'You are already logged in', id:payload.id ?? -1 });
 
     const loadedUser = await this.userService.login(payload);
     if (loadedUser.success)
