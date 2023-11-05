@@ -46,6 +46,7 @@ export class UserService {
     }
 
     const loadedUser = await this.findUserForLogin(userPayload.login);
+    if (!loadedUser) return { success: false, message: 'User is not found' }
 
     const statusPassword = await bcrypt.compare(
       userPayload.password + this.configService.get<string>('SALT'), 
