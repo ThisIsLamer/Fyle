@@ -19,6 +19,7 @@ export class FileGateway {
     const { targetClient, payload } = processed;
     const loadedUser = await this.authService.checkAuth('registerFile', targetClient);
 
+    console.log(payload)
     const loadedFile = await this.fileService.registerFile(
       loadedUser,
       payload.filename,
@@ -29,13 +30,13 @@ export class FileGateway {
     targetClient.emit('registerFile', { ...loadedFile, id: payload.id });
   }
 
+  sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
   @SubscribeMessage('uploadBlock')
   async handleFileBlock(
     @MessageBody() data: ArrayBuffer,
     @ConnectedSocket() client: Socket
   ) {
-    console.log(1)
-    console.log(data)
     const targetClient = this.server.sockets.sockets.get(client.id);
 
     const tokenSize = 48;
@@ -43,16 +44,13 @@ export class FileGateway {
     const jsonSize = tokenSize + blockSize + 31 ;
     
     const jsonString = new TextDecoder().decode(data.slice(0, jsonSize));
-    console.log(jsonString)
     const metadata = JSON.parse(jsonString);
-
-    console.log(metadata);
   
     const binaryBlock = data.slice(jsonSize);
 
     const loadedFile = await this.fileService
       .appendToFile(metadata.token, Number(metadata.blockIndex), new Uint8Array(binaryBlock));
     
-    targetClient.emit('uploadBlock', { metadata });
+    console.log(process.memoryUsage().rss / (1024 * 1024));
   }
 }

@@ -29,7 +29,7 @@ export class FileService {
     await loadedFile.save();
 
     return new Promise<{ success: boolean, token?: string, message?: string }>((resolve, reject) => {
-      writeFile(join(process.cwd(), 'uploads', loadedFile.token), Buffer.alloc(totalSize), (err) => {
+      writeFile(join(process.cwd(), 'uploads', loadedFile.token), Buffer.alloc(0), (err) => {
         if (err) return reject({ success: false, message: 'File cannot be created' });
         resolve({ success: true, token: loadedFile.token });
       });
