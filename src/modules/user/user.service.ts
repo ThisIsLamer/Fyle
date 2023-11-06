@@ -5,7 +5,7 @@ import { Model, Types } from 'mongoose';
 import { IUserPayload } from './dto/user.dto';
 import * as bcrypt from "bcrypt";
 import { ConfigService } from '@nestjs/config';
-import { SessionService } from 'src/session/session.service';
+import { SessionService } from 'src/modules/session/session.service';
 
 @Injectable()
 export class UserService {

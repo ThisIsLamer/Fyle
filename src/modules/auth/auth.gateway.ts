@@ -2,11 +2,11 @@ import { Inject } from "@nestjs/common";
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import Redis from "ioredis";
 import { Server } from 'socket.io';
-import { IUserPayload } from "src/user/dto/user.dto";
-import { UserService } from "src/user/user.service";
-import { Processed, ProcessedPayload } from "src/utils/default";
+import { IUserPayload } from "src/modules/user/dto/user.dto";
+import { UserService } from "src/modules/user/user.service";
+import { Processed, ProcessedPayload } from "src/classes/utils/default";
 
-@WebSocketGateway({ cors: true })
+@WebSocketGateway({ cors: true, maxHttpBufferSize: 5e6 })
 export class AuthGateway {
   constructor(
     @Inject('REDIS') private readonly redis: Redis,
@@ -36,7 +36,8 @@ export class AuthGateway {
     @ProcessedPayload() processed: Processed<IUserPayload>
   ) {
     const { targetClient, payload } = processed;
-    if (!payload) return targetClient.emit('register', { success: true, message: 'The request was not sent correctly', id:payload.id ?? -1 })
+    if (!payload) 
+      return targetClient.emit('register', { success: true, message: 'The request was not sent correctly', id:payload.id ?? -1 })
 
     const loadedUser = await this.userService.create(payload);
     if (loadedUser.success)

@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import * as crypto from 'crypto';
-import { User } from 'src/user/schemas/user.schema';
+import { User } from 'src/modules/user/schemas/user.schema';
 
 export type SessionDocument = HydratedDocument<Session>;
 

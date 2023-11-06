@@ -4,13 +4,13 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthModule } from './auth/auth.module';
-import { GuestModule } from './guest/guest.module';
-import { RedisModule } from './redis/redis.module';
-import { UserModule } from './user/user.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { GuestModule } from './modules/guest/guest.module';
+import { RedisModule } from './classes/redis/redis.module';
+import { UserModule } from './modules/user/user.module';
 import { validate } from './env.validation';
-import { SessionModule } from './session/session.module';
-import { FileModule } from './file/file.module';
+import { SessionModule } from './modules/session/session.module';
+import { FileModule } from './modules/file/file.module';
 
 @Module({
   imports: [

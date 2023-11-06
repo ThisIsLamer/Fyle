@@ -3,10 +3,10 @@ import { Inject } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import Redis from 'ioredis';
 import { Server } from 'socket.io';
-import { GuestService } from 'src/guest/guest.service';
-import { Processed, ProcessedPayload } from 'src/utils/default';
+import { GuestService } from 'src/modules/guest/guest.service';
+import { Processed, ProcessedPayload } from 'src/classes/utils/default';
 
-@WebSocketGateway({ cors: true })
+@WebSocketGateway({ cors: true, maxHttpBufferSize: 5e6 })
 export class AuthGuestGateway {
   constructor(
     @Inject('REDIS') private readonly redis: Redis,
@@ -28,7 +28,7 @@ export class AuthGuestGateway {
     if (!loadedGuest) 
       return { success: false, message: 'Invalid token', id:payload.id ?? -1 }
 
-    this.redis.set(targetClient.id, `{ "authType": "guest", "token": ${loadedGuest.token} }`);
+    this.redis.set(targetClient.id, `{ "authType": "guest", "token": "${loadedGuest.token}" }`);
 
     targetClient.emit('guest-auth', loadedGuest );
   }
@@ -42,7 +42,7 @@ export class AuthGuestGateway {
 
     const loadedGuest = await this.guestService.create();
 
-    this.redis.set(targetClient.id, `{ "authType": "guest", "token": ${loadedGuest.token} }`);
+    this.redis.set(targetClient.id, `{ "authType": "guest", "token": "${loadedGuest.token}" }`);
     targetClient.emit('guest-register', { success: true, guest: loadedGuest, id:payload.id ?? -1 });
   }
 }
