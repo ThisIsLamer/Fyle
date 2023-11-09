@@ -11,6 +11,7 @@ import { UserModule } from './modules/user/user.module';
 import { validate } from './env.validation';
 import { SessionModule } from './modules/session/session.module';
 import { FileModule } from './modules/file/file.module';
+import { MinioModule } from './classes/minio/minio.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { FileModule } from './modules/file/file.module';
     UserModule,
     SessionModule,
     FileModule,
+    MinioModule,
   ],
   controllers: [AppController],
   providers: [AppService],

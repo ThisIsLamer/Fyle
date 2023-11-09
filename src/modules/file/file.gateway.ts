@@ -19,7 +19,6 @@ export class FileGateway {
     const { targetClient, payload } = processed;
     const loadedUser = await this.authService.checkAuth('registerFile', targetClient);
 
-    console.log(payload)
     const loadedFile = await this.fileService.registerFile(
       loadedUser,
       payload.filename,
@@ -51,6 +50,8 @@ export class FileGateway {
     const loadedFile = await this.fileService
       .appendToFile(metadata.token, Number(metadata.blockIndex), new Uint8Array(binaryBlock));
     
+    targetClient.emit('uploadBlock', loadedFile);
+
     console.log(process.memoryUsage().rss / (1024 * 1024));
   }
 }

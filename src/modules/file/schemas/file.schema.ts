@@ -25,6 +25,12 @@ export class File {
 
   @Prop({ type: Types.ObjectId, ref: 'Guest' })
   guest: Guest | Types.ObjectId;
+
+  @Prop({ required: true })
+  _blocks: number;
+
+  @Prop({ required: true, default: false })
+  _loaded: boolean;
 }
 
 export const FileSchema = SchemaFactory.createForClass(File);

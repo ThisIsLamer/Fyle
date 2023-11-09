@@ -5,11 +5,12 @@ import Redis from 'ioredis';
 import { Server } from 'socket.io';
 import { GuestService } from 'src/modules/guest/guest.service';
 import { Processed, ProcessedPayload } from 'src/classes/utils/default';
+import { REDIS } from 'src/classes/utils/configs/redis.config';
 
 @WebSocketGateway({ cors: true, maxHttpBufferSize: 5e6 })
 export class AuthGuestGateway {
   constructor(
-    @Inject('REDIS') private readonly redis: Redis,
+    @Inject(REDIS) private readonly redis: Redis,
 
     private guestService: GuestService,
   ) {}
