@@ -2,8 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { File, FileDocument } from './schemas/file.schema';
 import { Model } from 'mongoose';
-import { createWriteStream, unlink, writeFile } from 'fs';
-import { join, resolve } from 'path';
+import { createWriteStream, mkdir, unlink, writeFile } from 'fs';
+import { dirname, join, resolve } from 'path';
 import { AuthService } from '../auth/auth.service';
 import Redis from 'ioredis';
 import { ConfigService } from '@nestjs/config';
@@ -60,12 +60,16 @@ export class FileService {
     await loadedFile.save();
 
     return new Promise<{ success: boolean, token?: string, message?: string }>((resolve, reject) => {
-      writeFile(join(this.BASE_PATH, loadedFile.token), Buffer.alloc(0), (err) => {
-        if (err) return reject({ success: false, message: 'File cannot be created' });
+      const filePath = join(this.BASE_PATH, loadedFile.token);
 
-        this.redis.set(`file-${loadedFile.token}`, JSON.stringify(loadedFile));
-
-        resolve({ success: true, token: loadedFile.token });
+      mkdir(dirname(filePath), { recursive: true }, (err) => {
+        writeFile(join(this.BASE_PATH, loadedFile.token), Buffer.alloc(0), (err) => {
+          if (err) return reject({ success: false, message: 'File cannot be created' });
+  
+          this.redis.set(`file-${loadedFile.token}`, JSON.stringify(loadedFile));
+  
+          resolve({ success: true, token: loadedFile.token });
+        });
       });
     })
   }
