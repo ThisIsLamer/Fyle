@@ -6,6 +6,7 @@ import { IUserPayload } from "src/modules/user/dto/user.dto";
 import { UserService } from "src/modules/user/user.service";
 import { Processed, ProcessedPayload } from "src/classes/utils/default";
 import { REDIS } from "src/classes/utils/configs/redis.config";
+import { ICacheUserData } from "./dto/auth.dto";
 
 @WebSocketGateway({ cors: true, maxHttpBufferSize: 5e6 })
 export class AuthGateway {
@@ -22,12 +23,17 @@ export class AuthGateway {
     const { targetClient, payload } = processed;
     if (!payload) 
       return targetClient.emit('auth', { success: false, message: 'The request was not sent correctly', id: payload.id ?? -1 });
-    if (await this.redis.get(targetClient.id))
-      return targetClient.emit('auth', { success: true, message: 'You are already logged in', id:payload.id ?? -1 });
+    
+    const loadedUserCache = await this.redis.get(targetClient.id);
+    if (loadedUserCache)
+      if ((JSON.parse(loadedUserCache) as ICacheUserData).authType === 'user')
+        return targetClient.emit('auth', { success: true, message: 'You are already logged in', id:payload.id ?? -1 });
 
     const loadedUser = await this.userService.login(payload);
-    if (loadedUser.success)
+    if (loadedUser.success) {
+      this.redis.del(targetClient.id);
       this.redis.set(targetClient.id, `{ "authType": "user", "token": "${loadedUser.session.token}" }`);
+    }
 
     targetClient.emit('auth', { ...loadedUser, id: payload.id ?? -1 });
   }
