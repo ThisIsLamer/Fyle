@@ -1,0 +1,29 @@
+{
+  "name": "fyle-back",
+  "private": true,
+  "scripts": {
+    "dev": "ts-node src/index.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "devDependencies": {
+    "@hibanka/eslint-config": "^4.0.0",
+    "@hibanka/prettier-config": "^4.0.0",
+    "@hibanka/ts-config": "^4.0.0",
+    "@types/node": "^16.18.23",
+    "@types/ws": "^8.5.10",
+    "eslint": "^8.38.0",
+    "prettier": "^2.8.7",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  },
+  "engines": {
+    "node": ">=16",
+    "npm": ">=8",
+    "yarn": ">=1.13"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+}
