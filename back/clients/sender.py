@@ -49,7 +49,10 @@ with connect('ws://localhost:8000', max_size=1000*1024*1024) as ws:
     while blockTransmit < session['blockCount']:
         check_apply_message(session)
 
-        if not session['pauseReceiving']:
+        # передано больше блоков без подтверждения чем окно
+        overload = blockTransmit - session['blockReceivedAck'] > session['blockWindow']
+
+        if not session['pauseReceiving'] and not overload:
             session_id = session['id']
             block_num = blockTransmit
             block = fd.read(session['blockSize'])
@@ -59,7 +62,7 @@ with connect('ws://localhost:8000', max_size=1000*1024*1024) as ws:
             ws.send(block_s)
             blockTransmit += 1
         else:
-            time.sleep(0.05)  # чтоб слишком много хлама в логах не было
+            time.sleep(0.05)
             print('|', end='')
 
     pass
