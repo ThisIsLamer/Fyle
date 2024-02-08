@@ -2,7 +2,8 @@
   "name": "fyle-back",
   "private": true,
   "scripts": {
-    "dev": "ts-watch src/index.ts --outDir ./dist --onSuccess",
+    "watch": "nodemon",
+    "dev": "ts-node src/index.ts",
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
@@ -14,9 +15,9 @@
     "@types/node": "^16.18.23",
     "@types/ws": "^8.5.10",
     "eslint": "^8.38.0",
+    "nodemon": "^3.0.3",
     "prettier": "^2.8.7",
     "ts-node": "^10.9.1",
-    "ts-watch": "^1.0.8",
     "typescript": "^5.0.4"
   },
   "engines": {
@@ -26,5 +27,12 @@
   },
   "dependencies": {
     "ws": "^8.16.0"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "src/"
+    ],
+    "ext": "js,ts,json",
+    "exec": "npm run dev"
   }
 }
