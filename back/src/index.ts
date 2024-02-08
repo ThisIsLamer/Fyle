@@ -1,5 +1,6 @@
 import * as WebSocket from 'ws';
 
+console.log('da');
 export class WebSocketServer {
   public static readonly PORT: number = 9090;
   private io: any;
