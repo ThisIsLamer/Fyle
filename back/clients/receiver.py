@@ -43,7 +43,7 @@ with connect('ws://localhost:8000', max_size=1000*1024*1024) as ws:
                     'method': 'blockReceived',
                     'params': {
                         'sessionId': session['id'],
-                        'block': block_id
+                        'blockId': block_id
                     }
                 }))
 
@@ -51,8 +51,9 @@ with connect('ws://localhost:8000', max_size=1000*1024*1024) as ws:
                 print('all blocks received')
                 break
 
-    f.close()
+            # как будто тут тормозит
+            time.sleep(0.1)
 
-    time.sleep(1000)
+    f.close()
     pass
 

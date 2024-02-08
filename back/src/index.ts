@@ -126,11 +126,12 @@ export class WebSocketServer {
           }
           this.blockTransmittedAck = blockId;
 
-          let paused = this.blockTransmitted - this.blockTransmittedAck > this.blockWindow / 2;
-          if (paused !== this.pauseReceiving) {
+          let oldPaused = this.pauseReceiving;
+          this.pauseReceiving = this.blockTransmitted - this.blockTransmittedAck > this.blockWindow / 2;
+
+          if (oldPaused !== this.pauseReceiving) {
             this.onSessionChanged('src');
           }
-          this.pauseReceiving = paused;
         },
         print: function() {
           console.log(Object.keys(this).map(k => {

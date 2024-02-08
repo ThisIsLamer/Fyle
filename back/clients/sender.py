@@ -1,9 +1,10 @@
 import json
 import os
+import time
 
 from websockets.sync.client import connect
 
-f = input('file path: ') or r"E:\Downloads\Wireshark-4.2.2-x64.exe"
+f = input('file path: ') or r"E:\Downloads\xiaomi.eu_multi_HOUJI_OS1.0.24.1.22.DEV_os1-14.zip"
 dst_id = int(input('dst id: '))
 
 fn = f[f.rfind('\\') + 1:]
@@ -57,16 +58,10 @@ with connect('ws://localhost:8000', max_size=1000*1024*1024) as ws:
             print('sended', block[:15].hex(' '), len(block_s))
             ws.send(block_s)
             blockTransmit += 1
+        else:
+            time.sleep(0.05)  # чтоб слишком много хлама в логах не было
+            print('|', end='')
 
-        #time.sleep(0.3)
-        print('|', end='')
-
-
-
-    # ws.send(json.dumps({'message': 1}))
-    # ws.send(data)
-
-    # time.sleep(10)
     pass
 
 
