@@ -38,7 +38,7 @@ export class WebSocketServer {
         return;
       }
 
-      console.log('Received data', client.appId, sessionId, blockId, data);
+      console.log('Received data', client.appId, sessionId, blockId);
 
       this.onClientData(client, { session, blockId, full: message });
     } else {
@@ -141,7 +141,7 @@ export class WebSocketServer {
           }))
         },
         onSessionChanged: function(notify: 'src' | 'dst' | 'all') {
-          this.print();
+          // this.print();
 
           if (notify === 'src' || notify === 'all') {
             this.source.send(JSON.stringify({
