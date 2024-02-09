@@ -94,7 +94,7 @@ export class WebSocketServer {
         return;
       }
 
-      let blockSize = 2 * 1024 * 1024;
+      let blockSize = Math.ceil(0.5 * 1024 * 1024);
 
       let session: ISession = {
         id: Math.floor(Math.random() * 2 ** 32),
@@ -183,6 +183,7 @@ export class WebSocketServer {
             id: session.id,
             fileName: data.fileName,
             fileSize: data.fileSize,
+            blockWindow: session.blockWindow,
             blockCount: session.blockCount,
             blockTransmitted: session.blockTransmitted,
             blockTransmittedAck: session.blockTransmittedAck,
@@ -220,6 +221,10 @@ export class WebSocketServer {
           }
         }))
         return;
+      }
+
+      if (data.blockId === session.blockCount) {
+        console.log(`All block transferred on session ${session.id}`)
       }
 
       session.onAckReceived(data.blockId);
