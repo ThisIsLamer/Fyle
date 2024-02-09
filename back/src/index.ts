@@ -239,8 +239,8 @@ export class WebSocketServer {
 
     block.session.blockReceived += 1;
 
-    // если разница блоков отмеченных и принятых более половины window = отправлять ack клиенту
-    if (block.session.blockReceived - block.session.blockReceivedAck > block.session.blockWindow / 2) {
+    // если разница блоков отмеченных и принятых более половины window или это последний блок = отправлять ack клиенту
+    if (block.session.blockReceived - block.session.blockReceivedAck > block.session.blockWindow / 2 || (block.session.blockReceived === (block.session.blockCount - 1))) {
       block.session.blockReceivedAck = block.session.blockReceived;
       block.session.onSessionChanged('src');
     }
