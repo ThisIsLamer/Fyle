@@ -31,7 +31,7 @@ export class WebSocketServer {
       let blockId = message.readUint32BE(4)
       let data = message
 
-      let session = this.socket.sessions.find(_ => _.id == sessionId);
+      let session = this.socket.sessions.find(_ => _.id === sessionId);
       if (!session) {
         console.log(`Session ID ${sessionId} not found`)
         client.close()
@@ -61,7 +61,7 @@ export class WebSocketServer {
       console.log(`Client ID ${client.appId} disconnected`);
 
       this.socket.sessions
-        .filter(_ => _.destination == client || _.source == client)
+        .filter(_ => _.destination === client || _.source === client)
         .map(_ => this.socket.sessions
           .splice(this.socket.sessions.indexOf(_), 1)
         )
@@ -135,7 +135,7 @@ export class WebSocketServer {
         },
         print: function() {
           console.log(Object.keys(this).map(k => {
-            if (k === 'source' || k == 'destination') return {k: ''}
+            if (k === 'source' || k === 'destination') return {k: ''}
             // @ts-ignore
             return {k: k, v: this[k]}
           }))
