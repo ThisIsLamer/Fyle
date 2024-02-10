@@ -4,7 +4,7 @@ import time
 
 from websockets.sync.client import connect
 
-f = input('file path: ') or r"E:\Downloads\xiaomi.eu_multi_HOUJI_OS1.0.24.1.22.DEV_os1-14.zip"
+f = input('file path: ') or r"C:\Games\Rockstar Games\Grand Theft Auto V\x64q.rpf"
 dst_id = int(input('dst id: '))
 
 fn = f[f.rfind('\\') + 1:]
@@ -14,7 +14,7 @@ fd = open(f, 'rb')
 
 print('sender start')
 
-with connect('ws://localhost:8000', max_size=1000*1024*1024) as ws:
+with connect('wss://mark99.ru/markpc/', max_size=1000*1024*1024) as ws:
     data: dict = json.loads(ws.recv(timeout=1000.0))
     print(data)
     myId = data['result']['clientId']

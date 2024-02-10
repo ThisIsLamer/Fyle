@@ -26,6 +26,10 @@
     "yarn": ">=1.13"
   },
   "dependencies": {
+    "dotenv": "^16.4.1",
+    "pino": "^8.18.0",
+    "pino-pretty": "^10.3.1",
+    "reflect-metadata": "^0.2.1",
     "ws": "^8.16.0"
   },
   "nodemonConfig": {

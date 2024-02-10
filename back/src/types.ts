@@ -1,4 +1,4 @@
-import WebSocket from "ws";
+import WebSocket from 'ws';
 
 export interface ISession {
   id: number;
@@ -16,7 +16,7 @@ export interface ISession {
   destination: IWSClient;
   transferBlock: (block: BinaryMessage) => void;
   onAckReceived: (blockId: number) => void;
-  onSessionChanged: (notify: "src" | "dst" | "all") => void;
+  onSessionChanged: (notify: 'src' | 'dst' | 'all') => void;
   print: () => void;
 }
 
@@ -32,12 +32,7 @@ export interface IBlockReceivedRequest {
 }
 
 export interface IWSClient extends WebSocket {
-  appId: number;
-}
-
-export interface IWSServer extends WebSocket.Server {
-  sessions: ISession[];
-  getClients: () => IWSClient[];
+  appId?: number;
 }
 
 export interface JsonMessage {
