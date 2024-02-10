@@ -4,6 +4,7 @@
   "scripts": {
     "watch": "nodemon",
     "dev": "ts-node src/index.ts",
+    "prod": "npm run build && node dist/index.js",
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
