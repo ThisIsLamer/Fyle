@@ -2,12 +2,12 @@ import WebSocket from "ws";
 import {
   BinaryMessage,
   IBlockReceivedRequest,
-  ISession,
   ISessionCreateRequest,
   IWSClient,
   IWSServer,
   JsonMessage
 } from "./types";
+import { Session } from "./session";
 
 export class WebSocketServer {
   private socket: IWSServer;
@@ -96,82 +96,9 @@ export class WebSocketServer {
 
       let blockSize = Math.ceil(0.5 * 1024 * 1024);
 
-      let session: ISession = {
-        id: Math.floor(Math.random() * 2 ** 32),
-        fileName: data.fileName,
-        fileSize: data.fileSize,
-        blockSize: blockSize, // 2 Mb
-        blockCount: Math.ceil(data.fileSize / blockSize),
-        blockReceived: -1,
-        blockReceivedAck: 0,
-        blockTransmitted: 0,
-        blockTransmittedAck: 0,
-        blockWindow: 20,
-        pauseReceiving: false,
-        source: client,
-        destination: destination,
-        transferBlock: function(block: BinaryMessage) {
-          if (this.blockTransmitted - this.blockTransmittedAck > this.blockWindow) {
-            this.pauseReceiving = true;
-            this.onSessionChanged('src');
-          }
-
-          this.blockTransmitted = block.blockId;
-          this.destination.send(block.full, {binary: true})
-        },
-        onAckReceived: function(blockId: number) {
-          if (blockId > this.blockTransmitted) {
-            console.error(`out of order ack ${blockId} > ${this.blockTransmitted} in ${session.id}`);
-            return;
-          }
-          this.blockTransmittedAck = blockId;
-
-          let oldPaused = this.pauseReceiving;
-          this.pauseReceiving = this.blockTransmitted - this.blockTransmittedAck > this.blockWindow / 2;
-
-          if (oldPaused !== this.pauseReceiving) {
-            this.onSessionChanged('src');
-          }
-        },
-        print: function() {
-          console.log(Object.keys(this).map(k => {
-            if (k === 'source' || k === 'destination') return {k: ''}
-            // @ts-ignore
-            return {k: k, v: this[k]}
-          }))
-        },
-        onSessionChanged: function(notify: 'src' | 'dst' | 'all') {
-          // this.print();
-
-          if (notify === 'src' || notify === 'all') {
-            this.source.send(JSON.stringify({
-              id: -1,
-              method: '_sessionChanged',
-              result: {
-                session: {
-                  pauseReceiving: session.pauseReceiving,
-                  blockReceived: session.blockReceived,
-                  blockReceivedAck: session.blockReceivedAck,
-                  blockWindow: session.blockWindow,
-                }
-              }
-            }))
-          }
-
-          if (notify === 'dst' || notify === 'all') {
-            this.destination.send(JSON.stringify({
-              id: -1,
-              method: '_sessionChanged',
-              result: {
-                session: {
-                  blockTransmittedAck: session.blockTransmittedAck,
-                  blockWindow: session.blockWindow,
-                }
-              }
-            }))
-          }
-        }
-      }
+      let session = new Session(
+        data.fileName, data.fileSize, blockSize, client, destination
+      );
       session.print();
       this.socket.sessions.push(session);
 
@@ -221,10 +148,6 @@ export class WebSocketServer {
           }
         }))
         return;
-      }
-
-      if (data.blockId === session.blockCount) {
-        console.log(`All block transferred on session ${session.id}`)
       }
 
       session.onAckReceived(data.blockId);

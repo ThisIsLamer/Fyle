@@ -1,24 +1,5 @@
 import WebSocket from "ws";
-
-export interface ISession {
-  id: number;
-  fileName: string;
-  fileSize: number;
-  blockSize: number;
-  blockCount: number;
-  blockReceived: number;
-  blockReceivedAck: number;
-  blockTransmitted: number;
-  blockTransmittedAck: number;
-  blockWindow: number;
-  pauseReceiving: boolean;
-  source: IWSClient;
-  destination: IWSClient;
-  transferBlock: (block: BinaryMessage) => void;
-  onAckReceived: (blockId: number) => void;
-  onSessionChanged: (notify: "src" | "dst" | "all") => void;
-  print: () => void;
-}
+import { Session } from "./session";
 
 export interface ISessionCreateRequest {
   fileName: string;
@@ -36,7 +17,7 @@ export interface IWSClient extends WebSocket {
 }
 
 export interface IWSServer extends WebSocket.Server {
-  sessions: ISession[];
+  sessions: Session[];
   getClients: () => IWSClient[];
 }
 
@@ -47,7 +28,7 @@ export interface JsonMessage {
 }
 
 export interface BinaryMessage {
-  session: ISession;
+  session: Session;
   blockId: number;
   full: Buffer;
 }
